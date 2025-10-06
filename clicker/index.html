@@ -1,0 +1,1700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artisan Coffee Clicker</title>
+    <style>
+        :root {
+            --primary: #8B4513;
+            --secondary: #D2691E;
+            --accent: #FFD700;
+            --background: #F5F5DC;
+            --card: #FFF8DC;
+            --text: #3E2723;
+            --success: #4CAF50;
+            --warning: #FF9800;
+            --error: #F44336;
+            --roast-light: #E3B23C;
+            --roast-medium: #A96F27;
+            --roast-dark: #4C2F14;
+            --espresso: #2C1A0F;
+            --latte: #F0E6D2;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            overflow-x: hidden;
+            background-image: radial-gradient(circle at 10% 20%, rgba(255,248,220,0.5) 0%, rgba(245,245,220,0.5) 90%);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 2px solid var(--primary);
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, var(--card) 0%, rgba(255,248,220,0.8) 100%);
+            border-radius: 15px;
+            padding: 20px 30px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo h1 {
+            font-size: 2.5rem;
+            color: var(--primary);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            font-size: 1.2rem;
+        }
+
+        .stat-item {
+            background: var(--card);
+            padding: 10px 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 30px;
+        }
+
+        .clicker-section {
+            text-align: center;
+            background: var(--card);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .coffee-container {
+            position: relative;
+            margin: 30px auto;
+            width: 300px;
+            height: 300px;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .coffee-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2));
+            transition: all 0.2s;
+        }
+
+        .coffee-image:hover {
+            transform: scale(1.05);
+        }
+
+        .coffee-image:active {
+            transform: scale(0.95);
+        }
+
+        .click-effect {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+            animation: clickPulse 0.5s ease-out;
+        }
+
+        @keyframes clickPulse {
+            0% {
+                transform: scale(0);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+
+        .auto-clickers {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .auto-clicker {
+            background: var(--card);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auto-clicker:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            border-color: var(--secondary);
+        }
+
+        .auto-clicker.unlocked {
+            background: linear-gradient(135deg, var(--card) 0%, #e8f5e9 100%);
+        }
+
+        .auto-clicker.locked {
+            opacity: 0.6;
+            filter: grayscale(0.7);
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .upgrades, .achievements, .research {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .upgrades h2, .achievements h2, .research h2 {
+            margin-bottom: 15px;
+            color: var(--primary);
+            border-bottom: 1px solid var(--secondary);
+            padding-bottom: 10px;
+        }
+
+        .upgrade, .achievement, .research-item {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.7);
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .upgrade:hover, .achievement:hover, .research-item:hover {
+            background: rgba(255,255,255,0.9);
+            transform: translateX(5px);
+        }
+
+        .upgrade.unlocked, .achievement.unlocked, .research-item.unlocked {
+            border-left: 4px solid var(--success);
+        }
+
+        .upgrade.locked, .achievement.locked, .research-item.locked {
+            border-left: 4px solid var(--error);
+            opacity: 0.7;
+        }
+
+        .progress-bar {
+            height: 5px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: var(--success);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .particles-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: var(--accent);
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: var(--card);
+            border-left: 4px solid var(--success);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-radius: 5px;
+            transform: translateX(150%);
+            transition: transform 0.5s ease;
+            z-index: 1001;
+            max-width: 300px;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .prestige-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: var(--card);
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .prestige-button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .prestige-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+
+        .prestige-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .coffee-bean {
+            position: absolute;
+            width: 20px;
+            height: 12px;
+            background: var(--roast-medium);
+            border-radius: 50%;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .floating-bean {
+            animation: floatBean 5s linear forwards;
+        }
+
+        @keyframes floatBean {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-1000px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .mini-game-container {
+            margin-top: 30px;
+            padding: 20px;
+            background: var(--card);
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+
+        .mini-game {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+
+        .game-cell {
+            aspect-ratio: 1;
+            background: var(--background);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid var(--secondary);
+        }
+
+        .game-cell:hover {
+            background: var(--latte);
+        }
+
+        .game-cell.active {
+            background: var(--espresso);
+            color: white;
+        }
+
+        .event-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--card);
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 1002;
+            display: none;
+        }
+
+        .event-container.show {
+            display: block;
+            animation: eventPop 0.5s ease;
+        }
+
+        @keyframes eventPop {
+            0% {
+                transform: translateX(-50%) translateY(100%);
+                opacity: 0;
+            }
+            100% {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .tab-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .tab {
+            padding: 8px 15px;
+            background: var(--background);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .coffee-roast-selector {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            justify-content: center;
+        }
+
+        .roast-option {
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .roast-option.active {
+            border-color: var(--primary);
+            transform: scale(1.05);
+        }
+
+        .roast-light {
+            background: var(--roast-light);
+            color: var(--text);
+        }
+
+        .roast-medium {
+            background: var(--roast-medium);
+            color: white;
+        }
+
+        .roast-dark {
+            background: var(--roast-dark);
+            color: white;
+        }
+
+        .seasonal-event {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--warning);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .coffee-container {
+                width: 200px;
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <h1>Artisan Coffee Clicker</h1>
+            </div>
+            <div class="stats">
+                <div class="stat-item">
+                    <span id="coffee-count">0</span> Coffees
+                </div>
+                <div class="stat-item">
+                    <span id="cps">0</span> Coffee/sec
+                </div>
+                <div class="stat-item">
+                    Prestige: <span id="prestige-level">0</span>
+                </div>
+                <div class="stat-item">
+                    Beans: <span id="bean-count">0</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="clicker-section">
+                <div class="seasonal-event" id="seasonal-event" style="display: none;">Seasonal Event!</div>
+                <h2>Click the Coffee!</h2>
+                
+                <div class="coffee-roast-selector">
+                    <div class="roast-option roast-light active" data-roast="light">Light Roast</div>
+                    <div class="roast-option roast-medium" data-roast="medium">Medium Roast</div>
+                    <div class="roast-option roast-dark" data-roast="dark">Dark Roast</div>
+                </div>
+                
+                <div class="coffee-container" id="coffee-clicker">
+                    <!-- Coffee image will be inserted here -->
+                    <div class="coffee-placeholder">Coffee Image Placeholder</div>
+                </div>
+                
+                <div class="auto-clickers" id="auto-clickers">
+                    <!-- Auto-clickers will be generated here -->
+                </div>
+                
+                <div class="mini-game-container">
+                    <h3>Barista Training</h3>
+                    <div class="mini-game">
+                        <p>Complete patterns to earn bonus coffee!</p>
+                        <div class="game-grid" id="game-grid">
+                            <!-- Game cells will be generated here -->
+                        </div>
+                        <button id="start-mini-game">Start Training</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="tab-container">
+                    <div class="tab active" data-tab="upgrades">Upgrades</div>
+                    <div class="tab" data-tab="achievements">Achievements</div>
+                    <div class="tab" data-tab="research">Research</div>
+                </div>
+                
+                <div class="tab-content active" id="upgrades-tab">
+                    <div class="upgrades">
+                        <h2>Upgrades</h2>
+                        <div id="upgrades-list">
+                            <!-- Upgrades will be generated here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="achievements-tab">
+                    <div class="achievements">
+                        <h2>Achievements</h2>
+                        <div id="achievements-list">
+                            <!-- Achievements will be generated here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="research-tab">
+                    <div class="research">
+                        <h2>Research</h2>
+                        <div id="research-list">
+                            <!-- Research items will be generated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="prestige-section">
+            <h2>Prestige System</h2>
+            <p>Reset your progress to gain prestige points and permanent bonuses!</p>
+            <button class="prestige-button" id="prestige-button" disabled>Prestige (Requires 10,000 Coffees)</button>
+        </div>
+    </div>
+
+    <div class="particles-container" id="particles-container"></div>
+    <div class="notification" id="notification"></div>
+    <div class="event-container" id="event-container"></div>
+
+    <script>
+        // Game State
+        const gameState = {
+            coffee: 0,
+            totalCoffee: 0,
+            coffeePerClick: 1,
+            coffeePerSecond: 0,
+            prestige: 0,
+            prestigePoints: 0,
+            beans: 0,
+            currentRoast: 'light',
+            autoClickers: [],
+            upgrades: [],
+            achievements: [],
+            research: [],
+            miniGame: {
+                active: false,
+                pattern: [],
+                playerPattern: [],
+                level: 1
+            },
+            seasonalEvent: null,
+            lastUpdate: Date.now()
+        };
+
+        // Auto Clicker Definitions
+        const autoClickerDefinitions = [
+            { id: 1, name: "Coffee Drip", baseCost: 10, baseCps: 0.1, description: "A slow but steady drip of coffee", unlockAt: 0 },
+            { id: 2, name: "Coffee Pot", baseCost: 50, baseCps: 0.5, description: "A standard coffee pot brewing continuously", unlockAt: 25 },
+            { id: 3, name: "Barista", baseCost: 200, baseCps: 2, description: "A skilled barista making coffee", unlockAt: 100 },
+            { id: 4, name: "Coffee Shop", baseCost: 1000, baseCps: 10, description: "Your own coffee shop serving customers", unlockAt: 500 },
+            { id: 5, name: "Coffee Factory", baseCost: 5000, baseCps: 50, description: "Industrial-scale coffee production", unlockAt: 2000 },
+            { id: 6, name: "Coffee Planet", baseCost: 25000, baseCps: 200, description: "An entire planet dedicated to coffee", unlockAt: 10000 },
+            { id: 7, name: "Coffee Galaxy", baseCost: 100000, baseCps: 1000, description: "A galaxy overflowing with coffee", unlockAt: 50000 },
+            { id: 8, name: "Coffee Universe", baseCost: 500000, baseCps: 5000, description: "The entire universe is coffee", unlockAt: 200000 },
+            { id: 9, name: "Coffee Multiverse", baseCost: 2500000, baseCps: 25000, description: "Infinite realities of pure coffee", unlockAt: 1000000 },
+            { id: 10, name: "Coffee God", baseCost: 10000000, baseCps: 100000, description: "You have become coffee itself", unlockAt: 5000000 }
+        ];
+
+        // Upgrade Definitions
+        const upgradeDefinitions = [
+            { id: 1, name: "Better Beans", description: "Higher quality beans increase coffee value", cost: 50, type: 'click', value: 1, requirement: null },
+            { id: 2, name: "Sharper Grinder", description: "Finer grind for better extraction", cost: 200, type: 'click', value: 2, requirement: 1 },
+            { id: 3, name: "Premium Filter", description: "Better filtration for cleaner taste", cost: 500, type: 'click', value: 3, requirement: 2 },
+            { id: 4, name: "Temperature Control", description: "Perfect brewing temperature every time", cost: 1000, type: 'click', value: 5, requirement: 3 },
+            { id: 5, name: "Barista Training", description: "Staff training improves efficiency", cost: 2000, type: 'cps', value: 10, requirement: null },
+            { id: 6, name: "Eco-Friendly Cups", description: "Sustainable packaging attracts customers", cost: 5000, type: 'cps', value: 25, requirement: 5 },
+            { id: 7, name: "Loyalty Program", description: "Repeat customers increase revenue", cost: 10000, type: 'cps', value: 50, requirement: 6 },
+            { id: 8, name: "Mobile Ordering", description: "App integration boosts sales", cost: 25000, type: 'cps', value: 100, requirement: 7 },
+            { id: 9, name: "International Shipping", description: "Global distribution network", cost: 50000, type: 'cps', value: 250, requirement: 8 },
+            { id: 10, name: "Coffee Subscription", description: "Recurring revenue stream", cost: 100000, type: 'cps', value: 500, requirement: 9 }
+        ];
+
+        // Achievement Definitions with creative names
+        const achievementDefinitions = [
+            // Early Game Achievements
+            { id: 1, name: "First Cup", description: "Brew your first coffee", requirement: { type: 'coffee', value: 1 } },
+            { id: 2, name: "Caffeine Addict", description: "Brew 100 coffees", requirement: { type: 'coffee', value: 100 } },
+            { id: 3, name: "Morning Routine", description: "Brew 500 coffees", requirement: { type: 'coffee', value: 500 } },
+            { id: 4, name: "Coffee Connoisseur", description: "Brew 1,000 coffees", requirement: { type: 'coffee', value: 1000 } },
+            { id: 5, name: "Bean There, Done That", description: "Collect 100 coffee beans", requirement: { type: 'beans', value: 100 } },
+            
+            // Mid Game Achievements
+            { id: 6, name: "Java Juggernaut", description: "Brew 10,000 coffees", requirement: { type: 'coffee', value: 10000 } },
+            { id: 7, name: "Espresso Enthusiast", description: "Reach 100 coffee per second", requirement: { type: 'cps', value: 100 } },
+            { id: 8, name: "Latte Legend", description: "Reach 1,000 coffee per second", requirement: { type: 'cps', value: 1000 } },
+            { id: 9, name: "Mocha Master", description: "Reach 10,000 coffee per second", requirement: { type: 'cps', value: 10000 } },
+            { id: 10, name: "Cappuccino Captain", description: "Own 100 auto-clickers", requirement: { type: 'autoClickers', value: 100 } },
+            
+            // Late Game Achievements
+            { id: 11, name: "Brewmaster", description: "Brew 1,000,000 coffees", requirement: { type: 'coffee', value: 1000000 } },
+            { id: 12, name: "Coffee Tycoon", description: "Brew 100,000,000 coffees", requirement: { type: 'coffee', value: 100000000 } },
+            { id: 13, name: "Global Domination", description: "Reach 1,000,000 coffee per second", requirement: { type: 'cps', value: 1000000 } },
+            { id: 14, name: "Intergalactic Export", description: "Reach 100,000,000 coffee per second", requirement: { type: 'cps', value: 100000000 } },
+            { id: 15, name: "The Coffee Emperor", description: "Prestige 10 times", requirement: { type: 'prestige', value: 10 } },
+            
+            // Special Achievements
+            { id: 16, name: "Perfect Pour", description: "Complete barista training level 5", requirement: { type: 'miniGame', value: 5 } },
+            { id: 17, name: "Bean Collector", description: "Collect 1,000 coffee beans", requirement: { type: 'beans', value: 1000 } },
+            { id: 18, name: "Roast Master", description: "Use all three roast types", requirement: { type: 'roasts', value: 3 } },
+            { id: 19, name: "Seasoned Brewer", description: "Play during a seasonal event", requirement: { type: 'seasonal', value: 1 } },
+            { id: 20, name: "Research Revolutionary", description: "Complete all research", requirement: { type: 'research', value: 10 } }
+        ];
+
+        // Research Definitions
+        const researchDefinitions = [
+            { id: 1, name: "Sustainable Farming", description: "Increase bean drop rate by 50%", cost: 1000, time: 60, effect: { type: 'beanDrop', value: 1.5 } },
+            { id: 2, name: "Advanced Roasting", description: "Unlock medium and dark roasts", cost: 5000, time: 120, effect: { type: 'unlockRoast', value: 'all' } },
+            { id: 3, name: "Genetic Modification", description: "Coffee plants yield 2x beans", cost: 10000, time: 300, effect: { type: 'beanValue', value: 2 } },
+            { id: 4, name: "Quantum Brewing", description: "Double coffee per click", cost: 25000, time: 600, effect: { type: 'clickMultiplier', value: 2 } },
+            { id: 5, name: "Temporal Manipulation", description: "Auto-clickers are 50% more effective", cost: 50000, time: 1200, effect: { type: 'cpsMultiplier', value: 1.5 } },
+            { id: 6, name: "Interdimensional Beans", description: "Unlock exotic coffee variants", cost: 100000, time: 1800, effect: { type: 'prestigeBonus', value: 0.1 } },
+            { id: 7, name: "AI Barista", description: "Triple mini-game rewards", cost: 250000, time: 3600, effect: { type: 'miniGameBonus', value: 3 } },
+            { id: 8, name: "Molecular Reconstruction", description: "Quadruple all coffee production", cost: 500000, time: 7200, effect: { type: 'globalMultiplier', value: 4 } },
+            { id: 9, name: "Reality Warping", description: "Gain 1% of CPS every second", cost: 1000000, time: 14400, effect: { type: 'exponentialGrowth', value: 0.01 } },
+            { id: 10, name: "The Perfect Cup", description: "Unlock the ultimate coffee form", cost: 5000000, time: 28800, effect: { type: 'ultimate', value: 10 } }
+        ];
+
+        // Seasonal Events
+        const seasonalEvents = [
+            { id: 1, name: "Harvest Festival", description: "Double bean drops for 24 hours", duration: 86400, effect: { type: 'beanDrop', value: 2 } },
+            { id: 2, name: "Barista Championship", description: "Triple mini-game rewards for 12 hours", duration: 43200, effect: { type: 'miniGameBonus', value: 3 } },
+            { id: 3, name: "Global Coffee Day", description: "All coffee production increased by 50% for 48 hours", duration: 172800, effect: { type: 'globalMultiplier', value: 1.5 } }
+        ];
+
+        // DOM Elements
+        const coffeeCountElement = document.getElementById('coffee-count');
+        const cpsElement = document.getElementById('cps');
+        const prestigeLevelElement = document.getElementById('prestige-level');
+        const beanCountElement = document.getElementById('bean-count');
+        const coffeeClickerElement = document.getElementById('coffee-clicker');
+        const autoClickersElement = document.getElementById('auto-clickers');
+        const upgradesListElement = document.getElementById('upgrades-list');
+        const achievementsListElement = document.getElementById('achievements-list');
+        const researchListElement = document.getElementById('research-list');
+        const particlesContainer = document.getElementById('particles-container');
+        const notificationElement = document.getElementById('notification');
+        const prestigeButton = document.getElementById('prestige-button');
+        const gameGridElement = document.getElementById('game-grid');
+        const startMiniGameButton = document.getElementById('start-mini-game');
+        const eventContainer = document.getElementById('event-container');
+        const seasonalEventElement = document.getElementById('seasonal-event');
+        const roastOptions = document.querySelectorAll('.roast-option');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        // Initialize Game
+        function initGame() {
+            // Initialize auto clickers
+            autoClickerDefinitions.forEach(def => {
+                gameState.autoClickers.push({
+                    ...def,
+                    count: 0,
+                    cost: def.baseCost
+                });
+            });
+
+            // Initialize upgrades
+            upgradeDefinitions.forEach(def => {
+                gameState.upgrades.push({
+                    ...def,
+                    purchased: false
+                });
+            });
+
+            // Initialize achievements
+            achievementDefinitions.forEach(def => {
+                gameState.achievements.push({
+                    ...def,
+                    unlocked: false
+                });
+            });
+
+            // Initialize research
+            researchDefinitions.forEach(def => {
+                gameState.research.push({
+                    ...def,
+                    researched: false,
+                    progress: 0,
+                    active: false
+                });
+            });
+
+            // Load saved game
+            loadGame();
+
+            // Set up coffee clicker
+            setupCoffeeClicker();
+
+            // Set up mini-game grid
+            setupMiniGame();
+
+            // Set up event system
+            setupEvents();
+
+            // Set up tabs
+            setupTabs();
+
+            // Set up roast selector
+            setupRoastSelector();
+
+            // Render game elements
+            renderAutoClickers();
+            renderUpgrades();
+            renderAchievements();
+            renderResearch();
+
+            // Start game loop
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Game Loop
+        function gameLoop() {
+            const now = Date.now();
+            const deltaTime = (now - gameState.lastUpdate) / 1000;
+            
+            if (deltaTime > 0) {
+                // Add coffee from auto-clickers
+                gameState.coffee += gameState.coffeePerSecond * deltaTime;
+                gameState.totalCoffee += gameState.coffeePerSecond * deltaTime;
+                
+                // Update research progress
+                updateResearch(deltaTime);
+                
+                // Update seasonal events
+                updateSeasonalEvents(deltaTime);
+                
+                // Random bean drops
+                if (Math.random() < 0.01 * deltaTime) {
+                    dropCoffeeBean();
+                }
+                
+                // Update last update time
+                gameState.lastUpdate = now;
+                
+                // Update UI
+                updateUI();
+                
+                // Check for achievements
+                checkAchievements();
+                
+                // Update prestige button
+                updatePrestigeButton();
+            }
+            
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Setup Coffee Clicker
+        function setupCoffeeClicker() {
+            // Create coffee image
+            const coffeeImage = document.createElement('img');
+            coffeeImage.src = 'coffee.png';
+            coffeeImage.alt = 'Coffee';
+            coffeeImage.className = 'coffee-image';
+            
+            // Replace placeholder with image
+            const placeholder = coffeeClickerElement.querySelector('.coffee-placeholder');
+            coffeeClickerElement.replaceChild(coffeeImage, placeholder);
+            
+            // Add click event
+            coffeeClickerElement.addEventListener('click', handleCoffeeClick);
+        }
+
+        // Handle Coffee Click
+        function handleCoffeeClick(event) {
+            // Add coffee based on roast type
+            let multiplier = 1;
+            switch(gameState.currentRoast) {
+                case 'light': multiplier = 1; break;
+                case 'medium': multiplier = 1.5; break;
+                case 'dark': multiplier = 2; break;
+            }
+            
+            const coffeeGained = gameState.coffeePerClick * multiplier;
+            gameState.coffee += coffeeGained;
+            gameState.totalCoffee += coffeeGained;
+            
+            // Create click effect
+            createClickEffect(event);
+            
+            // Create particles
+            createParticles(5, event.clientX, event.clientY);
+            
+            // Chance to drop a coffee bean
+            if (Math.random() < 0.1) {
+                dropCoffeeBean();
+            }
+            
+            // Update UI
+            updateUI();
+            
+            // Check for achievements
+            checkAchievements();
+        }
+
+        // Create Click Effect
+        function createClickEffect(event) {
+            const rect = coffeeClickerElement.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            
+            const effect = document.createElement('div');
+            effect.className = 'click-effect';
+            effect.style.left = `${x}px`;
+            effect.style.top = `${y}px`;
+            
+            coffeeClickerElement.appendChild(effect);
+            
+            // Remove effect after animation
+            setTimeout(() => {
+                if (effect.parentNode) {
+                    effect.parentNode.removeChild(effect);
+                }
+            }, 500);
+        }
+
+        // Create Particles
+        function createParticles(count, x, y) {
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = `${x}px`;
+                particle.style.top = `${y}px`;
+                
+                // Random velocity
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 2 + Math.random() * 3;
+                const vx = Math.cos(angle) * speed;
+                const vy = Math.sin(angle) * speed;
+                
+                // Random size and color variation
+                const size = 5 + Math.random() * 10;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                // Random brownish color based on roast
+                let r, g, b;
+                switch(gameState.currentRoast) {
+                    case 'light':
+                        r = 227; g = 179; b = 60;
+                        break;
+                    case 'medium':
+                        r = 169; g = 111; b = 39;
+                        break;
+                    case 'dark':
+                        r = 76; g = 47; b = 20;
+                        break;
+                }
+                
+                // Add some variation
+                r += Math.floor(Math.random() * 30) - 15;
+                g += Math.floor(Math.random() * 30) - 15;
+                b += Math.floor(Math.random() * 30) - 15;
+                
+                particle.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+                
+                particlesContainer.appendChild(particle);
+                
+                // Animate particle
+                let opacity = 1;
+                let posX = x;
+                let posY = y;
+                
+                const animateParticle = () => {
+                    opacity -= 0.02;
+                    posX += vx;
+                    posY += vy;
+                    
+                    particle.style.opacity = opacity;
+                    particle.style.left = `${posX}px`;
+                    particle.style.top = `${posY}px`;
+                    
+                    if (opacity > 0) {
+                        requestAnimationFrame(animateParticle);
+                    } else {
+                        if (particle.parentNode) {
+                            particle.parentNode.removeChild(particle);
+                        }
+                    }
+                };
+                
+                requestAnimationFrame(animateParticle);
+            }
+        }
+
+        // Drop Coffee Bean
+        function dropCoffeeBean() {
+            const bean = document.createElement('div');
+            bean.className = 'coffee-bean floating-bean';
+            
+            // Random position at bottom of screen
+            const x = Math.random() * window.innerWidth;
+            bean.style.left = `${x}px`;
+            bean.style.bottom = '0px';
+            
+            document.body.appendChild(bean);
+            
+            // Collect bean on click
+            bean.addEventListener('click', () => {
+                gameState.beans++;
+                bean.remove();
+                createParticles(3, x, parseFloat(bean.style.bottom));
+                showNotification('Collected a coffee bean!');
+                updateUI();
+            });
+            
+            // Remove bean after animation
+            setTimeout(() => {
+                if (bean.parentNode) {
+                    bean.parentNode.removeChild(bean);
+                }
+            }, 5000);
+        }
+
+        // Setup Mini Game
+        function setupMiniGame() {
+            // Create game grid
+            for (let i = 0; i < 25; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'game-cell';
+                cell.dataset.index = i;
+                cell.addEventListener('click', handleMiniGameClick);
+                gameGridElement.appendChild(cell);
+            }
+            
+            // Set up start button
+            startMiniGameButton.addEventListener('click', startMiniGame);
+        }
+
+        // Start Mini Game
+        function startMiniGame() {
+            if (gameState.miniGame.active) return;
+            
+            gameState.miniGame.active = true;
+            gameState.miniGame.pattern = [];
+            gameState.miniGame.playerPattern = [];
+            gameState.miniGame.level = 1;
+            
+            generatePattern();
+            showNotification('Barista training started! Watch the pattern.');
+        }
+
+        // Generate Pattern
+        function generatePattern() {
+            gameState.miniGame.pattern = [];
+            const patternLength = 3 + gameState.miniGame.level;
+            
+            for (let i = 0; i < patternLength; i++) {
+                const randomIndex = Math.floor(Math.random() * 25);
+                gameState.miniGame.pattern.push(randomIndex);
+            }
+            
+            // Show pattern to player
+            showPattern();
+        }
+
+        // Show Pattern
+        function showPattern() {
+            const cells = document.querySelectorAll('.game-cell');
+            
+            // Reset all cells
+            cells.forEach(cell => {
+                cell.classList.remove('active');
+            });
+            
+            // Activate pattern cells with delay
+            gameState.miniGame.pattern.forEach((cellIndex, i) => {
+                setTimeout(() => {
+                    cells[cellIndex].classList.add('active');
+                    
+                    setTimeout(() => {
+                        cells[cellIndex].classList.remove('active');
+                    }, 500);
+                }, i * 600);
+            });
+            
+            // Enable player input after pattern is shown
+            setTimeout(() => {
+                gameState.miniGame.playerPattern = [];
+            }, gameState.miniGame.pattern.length * 600 + 500);
+        }
+
+        // Handle Mini Game Click
+        function handleMiniGameClick(e) {
+            if (!gameState.miniGame.active) return;
+            
+            const cellIndex = parseInt(e.target.dataset.index);
+            gameState.miniGame.playerPattern.push(cellIndex);
+            
+            // Check if pattern matches
+            const currentStep = gameState.miniGame.playerPattern.length - 1;
+            if (gameState.miniGame.playerPattern[currentStep] !== gameState.miniGame.pattern[currentStep]) {
+                // Pattern incorrect
+                gameState.miniGame.active = false;
+                showNotification('Training failed! Try again.');
+                return;
+            }
+            
+            // Check if pattern is complete
+            if (gameState.miniGame.playerPattern.length === gameState.miniGame.pattern.length) {
+                // Pattern correct
+                const reward = gameState.miniGame.level * 100;
+                gameState.coffee += reward;
+                gameState.miniGame.level++;
+                showNotification(`Training complete! Level ${gameState.miniGame.level - 1} passed. Earned ${reward} coffee.`);
+                
+                // Check for achievement
+                if (gameState.miniGame.level - 1 === 5) {
+                    checkAchievement(16); // Perfect Pour achievement
+                }
+                
+                // Start next level or end game
+                if (gameState.miniGame.level <= 10) {
+                    setTimeout(() => {
+                        generatePattern();
+                    }, 1000);
+                } else {
+                    gameState.miniGame.active = false;
+                    showNotification('Barista training mastered! Maximum level reached.');
+                }
+            }
+        }
+
+        // Setup Events
+        function setupEvents() {
+            // Start a random seasonal event every 5-10 minutes
+            setInterval(() => {
+                if (gameState.seasonalEvent) return; // Already active
+                
+                const randomEvent = seasonalEvents[Math.floor(Math.random() * seasonalEvents.length)];
+                gameState.seasonalEvent = {
+                    ...randomEvent,
+                    startTime: Date.now()
+                };
+                
+                // Show event notification
+                seasonalEventElement.textContent = randomEvent.name;
+                seasonalEventElement.style.display = 'block';
+                
+                eventContainer.textContent = `Event: ${randomEvent.name} - ${randomEvent.description}`;
+                eventContainer.classList.add('show');
+                
+                setTimeout(() => {
+                    eventContainer.classList.remove('show');
+                }, 5000);
+                
+                // Check for achievement
+                checkAchievement(19); // Seasoned Brewer achievement
+                
+            }, 300000 + Math.random() * 300000); // 5-10 minutes
+        }
+
+        // Update Seasonal Events
+        function updateSeasonalEvents(deltaTime) {
+            if (!gameState.seasonalEvent) return;
+            
+            const event = gameState.seasonalEvent;
+            const elapsed = (Date.now() - event.startTime) / 1000;
+            
+            if (elapsed >= event.duration) {
+                // Event ended
+                gameState.seasonalEvent = null;
+                seasonalEventElement.style.display = 'none';
+                showNotification('Seasonal event has ended.');
+            }
+        }
+
+        // Setup Tabs
+        function setupTabs() {
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.dataset.tab;
+                    
+                    // Update active tab
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    // Show corresponding content
+                    tabContents.forEach(content => {
+                        content.classList.remove('active');
+                        if (content.id === `${tabId}-tab`) {
+                            content.classList.add('active');
+                        }
+                    });
+                });
+            });
+        }
+
+        // Setup Roast Selector
+        function setupRoastSelector() {
+            roastOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    const roast = option.dataset.roast;
+                    
+                    // Update active roast
+                    roastOptions.forEach(o => o.classList.remove('active'));
+                    option.classList.add('active');
+                    
+                    // Update game state
+                    gameState.currentRoast = roast;
+                    
+                    // Check for achievement if all roasts have been used
+                    const usedRoasts = new Set();
+                    roastOptions.forEach(o => {
+                        if (o.classList.contains('active') || localStorage.getItem(`roast_${o.dataset.roast}`)) {
+                            usedRoasts.add(o.dataset.roast);
+                        }
+                    });
+                    
+                    // Store that this roast has been used
+                    localStorage.setItem(`roast_${roast}`, 'true');
+                    
+                    // Check for achievement if all roasts used
+                    if (usedRoasts.size === 3) {
+                        checkAchievement(18); // Roast Master achievement
+                    }
+                });
+            });
+        }
+
+        // Render Auto Clickers
+        function renderAutoClickers() {
+            autoClickersElement.innerHTML = '';
+            
+            gameState.autoClickers.forEach((clicker, index) => {
+                if (gameState.totalCoffee < clicker.unlockAt) return;
+                
+                const clickerElement = document.createElement('div');
+                clickerElement.className = `auto-clicker ${clicker.count > 0 ? 'unlocked' : 'locked'}`;
+                clickerElement.innerHTML = `
+                    <h3>${clicker.name}</h3>
+                    <p>${clicker.description}</p>
+                    <p>Production: ${formatNumber(clicker.baseCps * clicker.count)}/sec</p>
+                    <p>Cost: ${formatNumber(clicker.cost)} coffees</p>
+                    <p>Owned: ${clicker.count}</p>
+                `;
+                
+                clickerElement.addEventListener('click', () => purchaseAutoClicker(index));
+                autoClickersElement.appendChild(clickerElement);
+            });
+        }
+
+        // Purchase Auto Clicker
+        function purchaseAutoClicker(index) {
+            const clicker = gameState.autoClickers[index];
+            
+            if (gameState.coffee >= clicker.cost) {
+                gameState.coffee -= clicker.cost;
+                clicker.count++;
+                
+                // Increase cost for next purchase
+                clicker.cost = Math.floor(clicker.baseCost * Math.pow(1.15, clicker.count));
+                
+                // Update coffee per second
+                updateCoffeePerSecond();
+                
+                // Re-render auto clickers
+                renderAutoClickers();
+                
+                // Show notification
+                showNotification(`Purchased ${clicker.name}!`);
+            }
+        }
+
+        // Render Upgrades
+        function renderUpgrades() {
+            upgradesListElement.innerHTML = '';
+            
+            gameState.upgrades.forEach((upgrade, index) => {
+                if (upgrade.requirement && !gameState.upgrades[upgrade.requirement - 1].purchased) {
+                    return; // Skip if requirement not met
+                }
+                
+                const upgradeElement = document.createElement('div');
+                upgradeElement.className = `upgrade ${upgrade.purchased ? 'unlocked' : 'locked'}`;
+                upgradeElement.innerHTML = `
+                    <h3>${upgrade.name}</h3>
+                    <p>${upgrade.description}</p>
+                    <p>Cost: ${formatNumber(upgrade.cost)} coffees</p>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: ${upgrade.purchased ? '100%' : '0%'}"></div>
+                    </div>
+                `;
+                
+                if (!upgrade.purchased) {
+                    upgradeElement.addEventListener('click', () => purchaseUpgrade(index));
+                }
+                
+                upgradesListElement.appendChild(upgradeElement);
+            });
+        }
+
+        // Purchase Upgrade
+        function purchaseUpgrade(index) {
+            const upgrade = gameState.upgrades[index];
+            
+            if (!upgrade.purchased && gameState.coffee >= upgrade.cost) {
+                gameState.coffee -= upgrade.cost;
+                upgrade.purchased = true;
+                
+                // Apply upgrade effect
+                if (upgrade.type === 'click') {
+                    gameState.coffeePerClick += upgrade.value;
+                } else if (upgrade.type === 'cps') {
+                    // This will be recalculated in updateCoffeePerSecond
+                    updateCoffeePerSecond();
+                }
+                
+                // Re-render upgrades
+                renderUpgrades();
+                
+                // Show notification
+                showNotification(`Purchased ${upgrade.name}!`);
+            }
+        }
+
+        // Render Achievements
+        function renderAchievements() {
+            achievementsListElement.innerHTML = '';
+            
+            gameState.achievements.forEach(achievement => {
+                const achievementElement = document.createElement('div');
+                achievementElement.className = `achievement ${achievement.unlocked ? 'unlocked' : 'locked'}`;
+                achievementElement.innerHTML = `
+                    <h3>${achievement.name}</h3>
+                    <p>${achievement.description}</p>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: ${getAchievementProgress(achievement)}%"></div>
+                    </div>
+                `;
+                
+                achievementsListElement.appendChild(achievementElement);
+            });
+        }
+
+        // Render Research
+        function renderResearch() {
+            researchListElement.innerHTML = '';
+            
+            gameState.research.forEach((research, index) => {
+                const researchElement = document.createElement('div');
+                researchElement.className = `research-item ${research.researched ? 'unlocked' : research.active ? 'researching' : 'locked'}`;
+                
+                let statusText = '';
+                if (research.researched) {
+                    statusText = 'Researched';
+                } else if (research.active) {
+                    statusText = `Researching... ${Math.floor(research.progress)}/${research.time}s`;
+                } else {
+                    statusText = `Cost: ${formatNumber(research.cost)} beans`;
+                }
+                
+                researchElement.innerHTML = `
+                    <h3>${research.name}</h3>
+                    <p>${research.description}</p>
+                    <p>${statusText}</p>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: ${research.researched ? 100 : (research.progress / research.time) * 100}%"></div>
+                    </div>
+                `;
+                
+                if (!research.researched && !research.active && gameState.beans >= research.cost) {
+                    researchElement.addEventListener('click', () => startResearch(index));
+                }
+                
+                researchListElement.appendChild(researchElement);
+            });
+        }
+
+        // Start Research
+        function startResearch(index) {
+            const research = gameState.research[index];
+            
+            if (gameState.beans >= research.cost && !research.active && !research.researched) {
+                gameState.beans -= research.cost;
+                research.active = true;
+                research.progress = 0;
+                
+                // Re-render research
+                renderResearch();
+                
+                // Show notification
+                showNotification(`Started researching: ${research.name}`);
+            }
+        }
+
+        // Update Research
+        function updateResearch(deltaTime) {
+            let allResearched = true;
+            
+            gameState.research.forEach(research => {
+                if (research.active && !research.researched) {
+                    research.progress += deltaTime;
+                    
+                    if (research.progress >= research.time) {
+                        research.active = false;
+                        research.researched = true;
+                        
+                        // Apply research effect
+                        applyResearchEffect(research);
+                        
+                        // Show notification
+                        showNotification(`Research completed: ${research.name}`);
+                        
+                        // Check for achievement if all research is done
+                        if (gameState.research.every(r => r.researched)) {
+                            checkAchievement(20); // Research Revolutionary achievement
+                        }
+                    }
+                }
+                
+                if (!research.researched) {
+                    allResearched = false;
+                }
+            });
+            
+            if (allResearched) {
+                // All research completed
+            }
+            
+            // Re-render research periodically
+            if (Math.random() < 0.1) {
+                renderResearch();
+            }
+        }
+
+        // Apply Research Effect
+        function applyResearchEffect(research) {
+            switch(research.effect.type) {
+                case 'beanDrop':
+                    // This would be applied in the bean drop logic
+                    break;
+                case 'unlockRoast':
+                    // Roasts are already unlocked through UI
+                    break;
+                case 'beanValue':
+                    // This would be applied when beans are used
+                    break;
+                case 'clickMultiplier':
+                    gameState.coffeePerClick *= research.effect.value;
+                    break;
+                case 'cpsMultiplier':
+                    // This would be applied in updateCoffeePerSecond
+                    updateCoffeePerSecond();
+                    break;
+                case 'prestigeBonus':
+                    // This would be applied in prestige calculation
+                    break;
+                case 'miniGameBonus':
+                    // This would be applied in mini-game rewards
+                    break;
+                case 'globalMultiplier':
+                    // This would be applied to all coffee production
+                    break;
+                case 'exponentialGrowth':
+                    // This would be applied in the game loop
+                    break;
+                case 'ultimate':
+                    // Ultimate effect
+                    gameState.coffeePerClick *= research.effect.value;
+                    updateCoffeePerSecond();
+                    break;
+            }
+        }
+
+        // Get Achievement Progress
+        function getAchievementProgress(achievement) {
+            if (achievement.unlocked) return 100;
+            
+            const req = achievement.requirement;
+            let current = 0;
+            let target = req.value;
+            
+            switch (req.type) {
+                case 'coffee':
+                    current = gameState.totalCoffee;
+                    break;
+                case 'cps':
+                    current = gameState.coffeePerSecond;
+                    break;
+                case 'beans':
+                    current = gameState.beans;
+                    break;
+                case 'autoClickers':
+                    current = gameState.autoClickers.reduce((sum, clicker) => sum + clicker.count, 0);
+                    break;
+                case 'prestige':
+                    current = gameState.prestige;
+                    break;
+                case 'miniGame':
+                    current = gameState.miniGame.level - 1;
+                    break;
+                case 'roasts':
+                    // Count how many roasts have been used
+                    const usedRoasts = new Set();
+                    roastOptions.forEach(o => {
+                        if (o.classList.contains('active') || localStorage.getItem(`roast_${o.dataset.roast}`)) {
+                            usedRoasts.add(o.dataset.roast);
+                        }
+                    });
+                    current = usedRoasts.size;
+                    break;
+                case 'seasonal':
+                    current = gameState.seasonalEvent ? 1 : 0;
+                    break;
+                case 'research':
+                    current = gameState.research.filter(r => r.researched).length;
+                    break;
+            }
+            
+            return Math.min(100, (current / target) * 100);
+        }
+
+        // Check Achievements
+        function checkAchievements() {
+            gameState.achievements.forEach(achievement => {
+                if (!achievement.unlocked) {
+                    const progress = getAchievementProgress(achievement);
+                    if (progress >= 100) {
+                        achievement.unlocked = true;
+                        showNotification(`Achievement Unlocked: ${achievement.name}`, 5000);
+                        
+                        // Create celebration particles
+                        createParticles(50, window.innerWidth / 2, window.innerHeight / 2);
+                        
+                        // Re-render achievements
+                        renderAchievements();
+                    }
+                }
+            });
+        }
+
+        // Check Specific Achievement
+        function checkAchievement(id) {
+            const achievement = gameState.achievements.find(a => a.id === id);
+            if (achievement && !achievement.unlocked) {
+                achievement.unlocked = true;
+                showNotification(`Achievement Unlocked: ${achievement.name}`, 5000);
+                renderAchievements();
+            }
+        }
+
+        // Update Coffee Per Second
+        function updateCoffeePerSecond() {
+            let baseCps = 0;
+            
+            // Add auto-clicker production
+            gameState.autoClickers.forEach(clicker => {
+                baseCps += clicker.baseCps * clicker.count;
+            });
+            
+            // Apply CPS upgrades
+            const cpsMultiplier = gameState.upgrades
+                .filter(upgrade => upgrade.purchased && upgrade.type === 'cps')
+                .reduce((mult, upgrade) => mult + upgrade.value, 0) / 10 + 1;
+            
+            // Apply research multipliers
+            const researchMultiplier = gameState.research
+                .filter(r => r.researched && (r.effect.type === 'cpsMultiplier' || r.effect.type === 'globalMultiplier' || r.effect.type === 'ultimate'))
+                .reduce((mult, research) => mult * research.effect.value, 1);
+            
+            // Apply seasonal event multiplier
+            let eventMultiplier = 1;
+            if (gameState.seasonalEvent && gameState.seasonalEvent.effect.type === 'globalMultiplier') {
+                eventMultiplier = gameState.seasonalEvent.effect.value;
+            }
+            
+            gameState.coffeePerSecond = baseCps * cpsMultiplier * researchMultiplier * eventMultiplier;
+        }
+
+        // Update UI
+        function updateUI() {
+            coffeeCountElement.textContent = formatNumber(gameState.coffee);
+            cpsElement.textContent = formatNumber(gameState.coffeePerSecond);
+            prestigeLevelElement.textContent = gameState.prestige;
+            beanCountElement.textContent = gameState.beans;
+        }
+
+        // Update Prestige Button
+        function updatePrestigeButton() {
+            if (gameState.totalCoffee >= 10000) {
+                prestigeButton.disabled = false;
+                prestigeButton.textContent = `Prestige (Gain ${Math.floor(Math.sqrt(gameState.totalCoffee / 1000))} points)`;
+            } else {
+                prestigeButton.disabled = true;
+                prestigeButton.textContent = `Prestige (Requires 10,000 Coffees)`;
+            }
+        }
+
+        // Prestige Function
+        function prestige() {
+            if (gameState.totalCoffee < 10000) return;
+            
+            // Calculate prestige points
+            const points = Math.floor(Math.sqrt(gameState.totalCoffee / 1000));
+            gameState.prestigePoints += points;
+            gameState.prestige++;
+            
+            // Show prestige notification
+            showNotification(`Prestiged! Gained ${points} prestige points.`, 5000);
+            
+            // Reset game state (but keep prestige points and beans)
+            const prestigePoints = gameState.prestigePoints;
+            const prestigeLevel = gameState.prestige;
+            const beans = gameState.beans;
+            
+            // Reset game state
+            Object.assign(gameState, {
+                coffee: 0,
+                totalCoffee: 0,
+                coffeePerClick: 1,
+                coffeePerSecond: 0,
+                prestige: prestigeLevel,
+                prestigePoints: prestigePoints,
+                beans: beans,
+                lastUpdate: Date.now()
+            });
+            
+            // Reset auto clickers
+            gameState.autoClickers.forEach(clicker => {
+                clicker.count = 0;
+                clicker.cost = clicker.baseCost;
+            });
+            
+            // Reset upgrades (but keep some based on prestige)
+            gameState.upgrades.forEach(upgrade => {
+                // Keep first few upgrades based on prestige level
+                if (upgrade.id <= Math.min(10, gameState.prestige * 2)) {
+                    upgrade.purchased = true;
+                    
+                    // Apply upgrade effect
+                    if (upgrade.type === 'click') {
+                        gameState.coffeePerClick += upgrade.value;
+                    }
+                } else {
+                    upgrade.purchased = false;
+                }
+            });
+            
+            // Update coffee per second
+            updateCoffeePerSecond();
+            
+            // Re-render game elements
+            renderAutoClickers();
+            renderUpgrades();
+            renderAchievements();
+            
+            // Save game
+            saveGame();
+        }
+
+        // Show Notification
+        function showNotification(message, duration = 3000) {
+            notificationElement.textContent = message;
+            notificationElement.classList.add('show');
+            
+            setTimeout(() => {
+                notificationElement.classList.remove('show');
+            }, duration);
+        }
+
+        // Format Number
+        function formatNumber(num) {
+            if (num < 1000) return Math.floor(num);
+            if (num < 1000000) return (num / 1000).toFixed(1) + 'K';
+            if (num < 1000000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num < 1000000000000) return (num / 1000000000).toFixed(1) + 'B';
+            return (num / 1000000000000).toFixed(1) + 'T';
+        }
+
+        // Save Game
+        function saveGame() {
+            localStorage.setItem('coffeeClickerSave', JSON.stringify(gameState));
+        }
+
+        // Load Game
+        function loadGame() {
+            const save = localStorage.getItem('coffeeClickerSave');
+            if (save) {
+                const savedState = JSON.parse(save);
+                Object.assign(gameState, savedState);
+                
+                // Update coffee per second after loading
+                updateCoffeePerSecond();
+                
+                // Set active roast
+                const activeRoast = gameState.currentRoast;
+                roastOptions.forEach(option => {
+                    if (option.dataset.roast === activeRoast) {
+                        option.classList.add('active');
+                    } else {
+                        option.classList.remove('active');
+                    }
+                });
+            }
+        }
+
+        // Auto-save every 30 seconds
+        setInterval(saveGame, 30000);
+
+        // Set up prestige button
+        prestigeButton.addEventListener('click', prestige);
+
+        // Initialize the game when the page loads
+        window.addEventListener('load', initGame);
+    </script>
+</body>
+</html>

@@ -701,8 +701,7 @@
             lastUpdate: Date.now()
         };
 
-        // Auto Clicker Definitions
-     const autoClickerDefinitions = [
+        const autoClickerDefinitions = [
     { id: 1, name: "Coffee Drip", baseCost: 15, baseCps: 0.05, description: "A slow but steady drip of coffee", unlockAt: 0 },
     { id: 2, name: "Coffee Pot", baseCost: 100, baseCps: 0.2, description: "A standard coffee pot brewing continuously", unlockAt: 50 },
     { id: 3, name: "Barista", baseCost: 500, baseCps: 0.8, description: "A skilled barista making coffee", unlockAt: 250 },
@@ -781,7 +780,6 @@
             { id: 2, name: "Barista Championship", description: "Triple mini-game rewards for 12 hours", duration: 43200, effect: { type: 'miniGameBonus', value: 3 } },
             { id: 3, name: "Global Coffee Day", description: "All coffee production increased by 50% for 48 hours", duration: 172800, effect: { type: 'globalMultiplier', value: 1.5 } }
         ];
-
         // DOM Elements
         const coffeeCountElement = document.getElementById('coffee-count');
         const cpsElement = document.getElementById('cps');
@@ -884,8 +882,8 @@
                 // Update seasonal events
                 updateSeasonalEvents(deltaTime);
                 
-                // Random bean drops
-                if (Math.random() < 0.01 * deltaTime) {
+                // Random bean drops - FIXED: Use proper deltaTime calculation
+                if (Math.random() < 0.003 * deltaTime) {
                     dropCoffeeBean();
                 }
                 
@@ -941,11 +939,10 @@
             // Create particles
             createParticles(5, event.clientX, event.clientY);
             
-            // Chance to drop a coffee bean
-           // Change from 0.01 to 0.003 (0.3% chance per second instead of 1%)
-if (Math.random() < 0.0003 * deltaTime) {
-    dropCoffeeBean();
-}
+            // Chance to drop a coffee bean - FIXED: Remove deltaTime reference
+            if (Math.random() < 0.03) {
+                dropCoffeeBean();
+            }
             
             // Update UI
             updateUI();
@@ -1006,6 +1003,8 @@ if (Math.random() < 0.0003 * deltaTime) {
                     case 'dark':
                         r = 76; g = 47; b = 20;
                         break;
+                    default:
+                        r = 139; g = 69; b = 19; // Default brown
                 }
                 
                 // Add some variation
@@ -1246,73 +1245,62 @@ if (Math.random() < 0.0003 * deltaTime) {
             });
         }
 
-        // Setup Roast Selector
+        // Setup Roast Selector - FIXED: Complete function without duplication
         function setupRoastSelector() {
-    roastOptions.forEach(option => {
-        option.addEventListener('click', () => {
-            const roast = option.dataset.roast;
-            const type = option.dataset.type;
-            
-            if (type === 'bean') {
-                // Switch to bean mode
-                roastOptions.forEach(o => o.classList.remove('active'));
-                option.classList.add('active');
-                
-                // Replace coffee image with bean image
-                const coffeeContainer = document.getElementById('coffee-clicker');
-                coffeeContainer.innerHTML = '';
-                
-                const beanImage = document.createElement('img');
-                beanImage.src = 'bean.png';
-                beanImage.alt = 'Coffee Bean';
-                beanImage.className = 'bean-image';
-                
-                coffeeContainer.appendChild(beanImage);
-                
-                // Update click handler for bean mode
-                coffeeContainer.onclick = handleBeanClick;
-                
-                return;
-            }
-            
-            // Existing roast selection code
-            roastOptions.forEach(o => o.classList.remove('active'));
-            option.classList.add('active');
-            gameState.currentRoast = roast;
-            
-            // Make sure we're in coffee mode
-            const coffeeContainer = document.getElementById('coffee-clicker');
-            coffeeContainer.innerHTML = '';
-            
-            const coffeeImage = document.createElement('img');
-            coffeeImage.src = 'coffee.png';
-            coffeeImage.alt = 'Coffee';
-            coffeeImage.className = 'coffee-image';
-            
-            coffeeContainer.appendChild(coffeeImage);
-            coffeeContainer.onclick = handleCoffeeClick;
-            
-            // Store that this roast has been used
-            localStorage.setItem(`roast_${roast}`, 'true');
-            
-            // Check for achievement if all roasts used
-            const usedRoasts = new Set();
-            roastOptions.forEach(o => {
-                if (o.dataset.roast && (o.classList.contains('active') || localStorage.getItem(`roast_${o.dataset.roast}`))) {
-                    usedRoasts.add(o.dataset.roast);
-                }
-            });
-            
-            // Check for achievement if all roasts used
-            if (usedRoasts.size === 3) {
-                checkAchievement(18); // Roast Master achievement
-            }
-        });
-    });
-}
+            roastOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    const roast = option.dataset.roast;
+                    const type = option.dataset.type;
+                    
+                    if (type === 'bean') {
+                        // Switch to bean mode
+                        roastOptions.forEach(o => o.classList.remove('active'));
+                        option.classList.add('active');
+                        
+                        // Replace coffee image with bean image
+                        const coffeeContainer = document.getElementById('coffee-clicker');
+                        coffeeContainer.innerHTML = '';
+                        
+                        const beanImage = document.createElement('img');
+                        beanImage.src = 'bean.png';
+                        beanImage.alt = 'Coffee Bean';
+                        beanImage.className = 'bean-image';
+                        
+                        coffeeContainer.appendChild(beanImage);
+                        
+                        // Update click handler for bean mode
+                        coffeeContainer.onclick = handleBeanClick;
+                        
+                        return;
+                    }
+                    
+                    // Existing roast selection code
+                    roastOptions.forEach(o => o.classList.remove('active'));
+                    option.classList.add('active');
+                    gameState.currentRoast = roast;
+                    
+                    // Make sure we're in coffee mode
+                    const coffeeContainer = document.getElementById('coffee-clicker');
+                    coffeeContainer.innerHTML = '';
+                    
+                    const coffeeImage = document.createElement('img');
+                    coffeeImage.src = 'coffee.png';
+                    coffeeImage.alt = 'Coffee';
+                    coffeeImage.className = 'coffee-image';
+                    
+                    coffeeContainer.appendChild(coffeeImage);
+                    coffeeContainer.onclick = handleCoffeeClick;
                     
                     // Store that this roast has been used
                     localStorage.setItem(`roast_${roast}`, 'true');
+                    
+                    // Check for achievement if all roasts used
+                    const usedRoasts = new Set();
+                    roastOptions.forEach(o => {
+                        if (o.dataset.roast && (o.classList.contains('active') || localStorage.getItem(`roast_${o.dataset.roast}`))) {
+                            usedRoasts.add(o.dataset.roast);
+                        }
+                    });
                     
                     // Check for achievement if all roasts used
                     if (usedRoasts.size === 3) {
@@ -1320,6 +1308,78 @@ if (Math.random() < 0.0003 * deltaTime) {
                     }
                 });
             });
+        }
+
+        // Handle Bean Click
+        function handleBeanClick(event) {
+            // Add beans directly
+            gameState.beans++;
+            
+            // Create click effect
+            createClickEffect(event);
+            
+            // Create particles (use brown color for beans)
+            createBeanParticles(5, event.clientX, event.clientY);
+            
+            // Update UI
+            updateUI();
+            
+            // Check for achievements
+            checkAchievements();
+        }
+
+        // Create bean-specific particles (brown instead of gold)
+        function createBeanParticles(count, x, y) {
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = `${x}px`;
+                particle.style.top = `${y}px`;
+                
+                // Random velocity
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 2 + Math.random() * 3;
+                const vx = Math.cos(angle) * speed;
+                const vy = Math.sin(angle) * speed;
+                
+                // Random size
+                const size = 5 + Math.random() * 10;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                // Brown color for beans
+                const r = 139 + Math.floor(Math.random() * 30) - 15;
+                const g = 69 + Math.floor(Math.random() * 30) - 15;
+                const b = 19 + Math.floor(Math.random() * 30) - 15;
+                particle.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+                
+                particlesContainer.appendChild(particle);
+                
+                // Animate particle
+                let opacity = 1;
+                let posX = x;
+                let posY = y;
+                
+                const animateParticle = () => {
+                    opacity -= 0.02;
+                    posX += vx;
+                    posY += vy;
+                    
+                    particle.style.opacity = opacity;
+                    particle.style.left = `${posX}px`;
+                    particle.style.top = `${posY}px`;
+                    
+                    if (opacity > 0) {
+                        requestAnimationFrame(animateParticle);
+                    } else {
+                        if (particle.parentNode) {
+                            particle.parentNode.removeChild(particle);
+                        }
+                    }
+                };
+                
+                requestAnimationFrame(animateParticle);
+            }
         }
 
         // Render Auto Clickers
@@ -1436,77 +1496,7 @@ if (Math.random() < 0.0003 * deltaTime) {
                 achievementsListElement.appendChild(achievementElement);
             });
         }
-        // Handle Bean Click
-function handleBeanClick(event) {
-    // Add beans directly
-    gameState.beans++;
-    
-    // Create click effect
-    createClickEffect(event);
-    
-    // Create particles (use brown color for beans)
-    createBeanParticles(5, event.clientX, event.clientY);
-    
-    // Update UI
-    updateUI();
-    
-    // Check for achievements
-    checkAchievements();
-}
 
-// Create bean-specific particles (brown instead of gold)
-function createBeanParticles(count, x, y) {
-    for (let i = 0; i < count; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'particle';
-        particle.style.left = `${x}px`;
-        particle.style.top = `${y}px`;
-        
-        // Random velocity
-        const angle = Math.random() * Math.PI * 2;
-        const speed = 2 + Math.random() * 3;
-        const vx = Math.cos(angle) * speed;
-        const vy = Math.sin(angle) * speed;
-        
-        // Random size
-        const size = 5 + Math.random() * 10;
-        particle.style.width = `${size}px`;
-        particle.style.height = `${size}px`;
-        
-        // Brown color for beans
-        const r = 139 + Math.floor(Math.random() * 30) - 15;
-        const g = 69 + Math.floor(Math.random() * 30) - 15;
-        const b = 19 + Math.floor(Math.random() * 30) - 15;
-        particle.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
-        
-        particlesContainer.appendChild(particle);
-        
-        // Animate particle
-        let opacity = 1;
-        let posX = x;
-        let posY = y;
-        
-        const animateParticle = () => {
-            opacity -= 0.02;
-            posX += vx;
-            posY += vy;
-            
-            particle.style.opacity = opacity;
-            particle.style.left = `${posX}px`;
-            particle.style.top = `${posY}px`;
-            
-            if (opacity > 0) {
-                requestAnimationFrame(animateParticle);
-            } else {
-                if (particle.parentNode) {
-                    particle.parentNode.removeChild(particle);
-                }
-            }
-        };
-        
-        requestAnimationFrame(animateParticle);
-    }
-}
         // Render Research
         function renderResearch() {
             researchListElement.innerHTML = '';
@@ -1668,7 +1658,7 @@ function createBeanParticles(count, x, y) {
                     // Count how many roasts have been used
                     const usedRoasts = new Set();
                     roastOptions.forEach(o => {
-                        if (o.classList.contains('active') || localStorage.getItem(`roast_${o.dataset.roast}`)) {
+                        if (o.dataset.roast && (o.classList.contains('active') || localStorage.getItem(`roast_${o.dataset.roast}`))) {
                             usedRoasts.add(o.dataset.roast);
                         }
                     });

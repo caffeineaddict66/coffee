@@ -445,7 +445,23 @@
             margin: 15px 0;
             justify-content: center;
         }
+        .bean-clicker {
+    background: var(--roast-medium);
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 8px 15px;
+}
 
+.bean-clicker:hover {
+    background: var(--roast-dark);
+    transform: scale(1.05);
+}
+
+.bean-clicker.active {
+    border-color: var(--accent);
+    background: var(--roast-dark);
+}
         .roast-option {
             padding: 8px 15px;
             border-radius: 20px;
@@ -569,6 +585,10 @@
                     <div class="roast-option roast-light active" data-roast="light">Light Roast</div>
                     <div class="roast-option roast-medium" data-roast="medium">Medium Roast</div>
                     <div class="roast-option roast-dark" data-roast="dark">Dark Roast</div>
+                    <div class="roast-option bean-clicker" data-type="bean">
+        <img src="bean.png" alt="Coffee Bean" style="width: 20px; height: 15px; margin-right: 5px;">
+        Click for Beans
+    </div>
                 </div>
                 
                 <div class="coffee-container" id="coffee-clicker">
@@ -665,18 +685,19 @@
         };
 
         // Auto Clicker Definitions
-        const autoClickerDefinitions = [
-            { id: 1, name: "Coffee Drip", baseCost: 10, baseCps: 0.1, description: "A slow but steady drip of coffee", unlockAt: 0 },
-            { id: 2, name: "Coffee Pot", baseCost: 50, baseCps: 0.5, description: "A standard coffee pot brewing continuously", unlockAt: 25 },
-            { id: 3, name: "Barista", baseCost: 200, baseCps: 2, description: "A skilled barista making coffee", unlockAt: 100 },
-            { id: 4, name: "Coffee Shop", baseCost: 1000, baseCps: 10, description: "Your own coffee shop serving customers", unlockAt: 500 },
-            { id: 5, name: "Coffee Factory", baseCost: 5000, baseCps: 50, description: "Industrial-scale coffee production", unlockAt: 2000 },
-            { id: 6, name: "Coffee Planet", baseCost: 25000, baseCps: 200, description: "An entire planet dedicated to coffee", unlockAt: 10000 },
-            { id: 7, name: "Coffee Galaxy", baseCost: 100000, baseCps: 1000, description: "A galaxy overflowing with coffee", unlockAt: 50000 },
-            { id: 8, name: "Coffee Universe", baseCost: 500000, baseCps: 5000, description: "The entire universe is coffee", unlockAt: 200000 },
-            { id: 9, name: "Coffee Multiverse", baseCost: 2500000, baseCps: 25000, description: "Infinite realities of pure coffee", unlockAt: 1000000 },
-            { id: 10, name: "Coffee God", baseCost: 10000000, baseCps: 100000, description: "You have become coffee itself", unlockAt: 5000000 }
-        ];
+     const autoClickerDefinitions = [
+    { id: 1, name: "Coffee Drip", baseCost: 15, baseCps: 0.05, description: "A slow but steady drip of coffee", unlockAt: 0 },
+    { id: 2, name: "Coffee Pot", baseCost: 100, baseCps: 0.2, description: "A standard coffee pot brewing continuously", unlockAt: 50 },
+    { id: 3, name: "Barista", baseCost: 500, baseCps: 0.8, description: "A skilled barista making coffee", unlockAt: 250 },
+    { id: 4, name: "Coffee Shop", baseCost: 2500, baseCps: 3, description: "Your own coffee shop serving customers", unlockAt: 1000 },
+    { id: 5, name: "Coffee Factory", baseCost: 15000, baseCps: 12, description: "Industrial-scale coffee production", unlockAt: 5000 },
+    { id: 6, name: "Coffee Planet", baseCost: 75000, baseCps: 50, description: "An entire planet dedicated to coffee", unlockAt: 25000 },
+    { id: 7, name: "Coffee Galaxy", baseCost: 400000, baseCps: 200, description: "A galaxy overflowing with coffee", unlockAt: 150000 },
+    { id: 8, name: "Coffee Universe", baseCost: 2000000, baseCps: 800, description: "The entire universe is coffee", unlockAt: 800000 },
+    { id: 9, name: "Coffee Multiverse", baseCost: 10000000, baseCps: 3000, description: "Infinite realities of pure coffee", unlockAt: 4000000 },
+    { id: 10, name: "Coffee God", baseCost: 50000000, baseCps: 10000, description: "You have become coffee itself", unlockAt: 20000000 }
+];
+
 
         // Upgrade Definitions
         const upgradeDefinitions = [
@@ -904,9 +925,10 @@
             createParticles(5, event.clientX, event.clientY);
             
             // Chance to drop a coffee bean
-            if (Math.random() < 0.1) {
-                dropCoffeeBean();
-            }
+           // Change from 0.01 to 0.003 (0.3% chance per second instead of 1%)
+if (Math.random() < 0.0003 * deltaTime) {
+    dropCoffeeBean();
+}
             
             // Update UI
             updateUI();
@@ -1213,7 +1235,18 @@
             roastOptions.forEach(option => {
                 option.addEventListener('click', () => {
                     const roast = option.dataset.roast;
-                    
+                    const type = option.dataset.type;
+                       if (type === 'bean') {
+                // Handle bean clicking
+                gameState.beans++;
+                createParticles(3, 
+                    option.getBoundingClientRect().left + option.offsetWidth/2,
+                    option.getBoundingClientRect().top + option.offsetHeight/2
+                );
+                showNotification('+1 Bean!');
+                updateUI();
+                return;
+            }
                     // Update active roast
                     roastOptions.forEach(o => o.classList.remove('active'));
                     option.classList.add('active');

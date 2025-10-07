@@ -1044,7 +1044,6 @@ if (Math.random() < 0.0003 * deltaTime) {
                 gameState.beans++;
                 bean.remove();
                 createParticles(3, x, parseFloat(bean.style.bottom));
-                showNotification('Collected a coffee bean!');
                 updateUI();
             });
             
@@ -1243,7 +1242,7 @@ if (Math.random() < 0.0003 * deltaTime) {
                     option.getBoundingClientRect().left + option.offsetWidth/2,
                     option.getBoundingClientRect().top + option.offsetHeight/2
                 );
-                showNotification('+1 Bean!');
+                
                 updateUI();
                 return;
             }
